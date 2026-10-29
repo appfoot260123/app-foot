@@ -122,5 +122,5 @@ io.on('connection', socket => {
     }
   });
 });
-app.get('*', (req,res) => res.sendFile(path.join(__dirname,'public','index.html')));
+app.get('*', (req,res) => res.sendFile(path.join(__dirname,'index.html')));
 initDb().then(()=>server.listen(PORT,'0.0.0.0',()=>console.log(`FootZone démarré sur le port ${PORT}`))).catch(err=>{console.error('Database startup error:',err.message);process.exit(1)});
