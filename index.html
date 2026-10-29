@@ -128,7 +128,7 @@ PLAYERS.forEach(p=>{const baseRating=p.rating;if(baseRating>=90)p.value=100;else
 let team=JSON.parse(localStorage.getItem('fz_team')||'[]');
 // V8 : migration vers une sélection libre, sans composition préremplie.
 if(localStorage.getItem('fz_v8_init')!=='1'){team=[];localStorage.setItem('fz_team','[]');localStorage.setItem('fz_v8_init','1');}
-let coins=Number(localStorage.getItem('fz_coins') ?? 200);
+let coins=Number(localStorage.getItem('fz_coins') ?? 80);
 let chat=JSON.parse(localStorage.getItem('fz_chat')||'[]');
 let nickname=localStorage.getItem('fz_nick')||'Invité';
 let authToken=localStorage.getItem('fz_token')||''; let onlineSocket=null; let activeRoom=''; let onlineRoomState=null; let onlineChatMessages=[]; let accountMode='login';
