@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="fr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -206,8 +206,14 @@ let formation='balanced';
 function currentFormation(){return FORMATIONS[formation]||FORMATIONS.balanced}
 function required(){return currentFormation().required}
 function cost(){return team.reduce((sum,id)=>{const p=PLAYERS.find(x=>x.id===id);return sum+(p?p.price:0)},0)}
-function trainingCost(r){if(r>=94)return Infinity;return Math.round(Math.max(0.05,0.5*Math.pow(10,(r-79)/9))*100)/100;}
-function positionsOk(){return Object.entries(required()).every(([pos,count])=>team.map(id=>PLAYERS.find(p=>p.id===id)).filter(p=>p&&p.pos===pos).length===count)}
+function trainingCost(r){
+ if(r>=94)return Infinity;
+ if(r>=90)return 15+(r-90)*3;
+ if(r>=85)return 8+(r-85)*1.4;
+ if(r>=80)return 4+(r-80)*0.8;
+ if(r>=70)return 1.5+(r-70)*0.25;
+ return 0.5+(r-60)*0.1;
+}function positionsOk(){return Object.entries(required()).every(([pos,count])=>team.map(id=>PLAYERS.find(p=>p.id===id)).filter(p=>p&&p.pos===pos).length===count)}
 function renderTeam(){
  const req=required(),spent=cost(),left=coins-spent;
  $('remaining').textContent=left.toLocaleString('fr-FR',{maximumFractionDigits:2})+' M pièces';$('countPill').textContent=team.length+' / 7 joueurs';$('budgetFill').style.width=Math.max(0,left/Math.max(1,coins)*100)+'%';
