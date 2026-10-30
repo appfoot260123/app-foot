@@ -29,7 +29,7 @@ footer{border-top:1px solid var(--line);padding:16px 22px;color:var(--muted);fon
 <aside>
 <button class="navbtn active" data-page="home"><span class="navicon">⌂</span> Accueil</button>
 <button class="navbtn" data-page="feed"><span class="navicon">▤</span> Foot actu</button>
-<button class="navbtn" data-page="game"><span class="navicon">⚽</span> Mon club</button>
+<button class="navbtn" data-page="game"><span class="navicon">⚽</span> Équipe & carrière</button>
 <button class="navbtn" data-page="chat"><span class="navicon">☏</span> Discussions</button>
 <button class="navbtn" data-page="online"><span class="navicon">🌐</span> En ligne</button>
 <button class="navbtn" data-page="profile"><span class="navicon">◉</span> Mon profil</button>
@@ -42,7 +42,9 @@ footer{border-top:1px solid var(--line);padding:16px 22px;color:var(--muted);fon
 <div class="notice"><strong>À savoir :</strong> les actualités sont chargées depuis le flux RSS officiel de L’Équipe lorsque la connexion et le navigateur l’autorisent. football+ affiche des résumés courts et renvoie vers les articles originaux ; il ne reproduit pas les articles complets.</div>
 </section>
 <section class="page" id="feed"><div class="eyebrow">Source : L’Équipe</div><h1>Foot actu</h1><p class="muted">Les dernières actualités football de L’Équipe, résumées en quelques lignes avec un lien vers chaque article.</p><div class="match-setup" style="margin:14px 0"><button id="refreshNews">↻ Actualiser les actus</button><a href="https://www.lequipe.fr/Football/" target="_blank" rel="noopener" class="button secondary" style="display:inline-flex;align-items:center;text-decoration:none">Ouvrir L’Équipe ↗</a></div><p id="newsStatus" class="small" role="status">Chargement du flux RSS de L’Équipe…</p><div class="feed" id="allNews"></div><div class="notice"><strong>À noter :</strong> le flux RSS officiel est destiné à un usage personnel. Si Safari bloque le chargement depuis un fichier HTML local, utilise « Ouvrir L’Équipe » ; une version en ligne avec un petit serveur sera nécessaire pour un chargement fiable.</div></section>
-<section class="page" id="game"><div class="eyebrow">Mode mercato</div><h1>⚽ Mon club</h1><p class="muted">Tout au même endroit : construis ton équipe dans le Mercato, joue tes matchs, puis suis ta carrière et ton classement.</p><h2>🛒 Mercato — Construis ton équipe à 7</h2><p class="muted">Choisis une tactique pour modifier les postes nécessaires. Solde : pièces gagnées en match. Choisis toi-même tes sept joueurs : aucun onze de départ n’est imposé.</p>
+<section class="page" id="game"><div class="eyebrow">Mode mercato</div><h1>⚽ Équipe</h1><p class="muted">Crée ton club, personnalise son identité, puis prépare ton effectif et ta carrière.</p>
+<div class="card" id="clubCreator" style="margin:14px 0 20px"><div class="eyebrow">Ton club · création</div><h2>Créer et personnaliser mon club</h2><div class="formgrid"><div class="field"><label for="clubName">Nom du club</label><input id="clubName" maxlength="28" placeholder="Ex. Paris Football Club"></div><div class="field"><label for="clubPalette">Palette de couleurs</label><select id="clubPalette"><option value="blue-white">Bleu et blanc</option><option value="black-gold">Noir et or</option><option value="green-white">Vert et blanc</option><option value="red-blue">Rouge et bleu</option><option value="black-silver">Noir et argent</option><option value="navy-turquoise">Bleu marine et turquoise</option><option value="burgundy-beige">Bordeaux et beige</option><option value="multi">Multicolore</option></select></div><div class="field"><label for="clubLogoStyle">Style du logo</label><select id="clubLogoStyle"><option value="shield">Écusson</option><option value="symbol">Symbole</option><option value="mascot">Mascotte</option><option value="initials">Initiales</option><option value="retro">Rétro</option><option value="geometric">Géométrique</option></select></div><div class="field"><label for="clubLogoUpload">Importer un logo (PNG ou JPG)</label><input id="clubLogoUpload" type="file" accept="image/png,image/jpeg"></div><div class="field"><label for="clubPrimary">Couleur principale</label><input id="clubPrimary" type="color" value="#2455a4"></div><div class="field"><label for="clubSecondary">Couleur secondaire</label><input id="clubSecondary" type="color" value="#ffffff"></div></div><div class="row" style="display:flex;align-items:center;gap:14px;margin-top:14px"><div id="clubBadge" style="width:76px;height:76px;border-radius:18px;background:#2455a4;color:white;display:grid;place-items:center;font-size:30px;font-weight:900;border:3px solid white">⚽</div><div><strong id="clubPreviewName">Mon nouveau club</strong><div class="small">Budget de départ : 80 M€</div><div class="small" id="clubLogoHint">Logo : écusson</div></div></div><button id="saveClub" style="margin-top:14px">Enregistrer mon club</button><p class="small" id="clubSaveStatus" role="status">Ton club n'est pas encore créé.</p></div>
+<h2>🛒 Mercato — Construis ton équipe à 7</h2><p class="muted">Choisis une tactique pour modifier les postes nécessaires. Solde : pièces gagnées en match. Choisis toi-même tes sept joueurs : aucun onze de départ n’est imposé.</p>
 <div class="grid2"><div class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><span class="small">Budget restant</span><h2 id="remaining" style="margin:2px 0">200 M pièces</h2></div><span class="pill" id="countPill">0 / 7 joueurs</span></div><div class="budgetbar"><span id="budgetFill"></span></div>
 <div class="position-rule" id="positionRule"><span class="pill">🧤 1 gardien</span><span class="pill">🛡️ 2 défenseurs</span><span class="pill">⚙️ 2 milieux</span><span class="pill">⚽ 2 attaquants</span></div>
 <div class="formation-row"><label for="formation" style="margin:0;font-size:12px;font-weight:800">Disposition</label><select id="formation"><option value="balanced">2-2-2 équilibrée</option><option value="321">3-2-1 solide</option><option value="231">2-3-1 milieu renforcé</option><option value="312">3-1-2 offensive</option><option value="132">1-3-2 très offensive</option><option value="wide">2-2-2 écartée</option><option value="compact">2-2-2 compacte</option></select></div>
@@ -143,7 +145,7 @@ if(localStorage.getItem('fz_v8_init')!=='1'){team=[];localStorage.setItem('fz_te
 let coins=Number(localStorage.getItem('fz_coins') ?? 80);
 let chat=JSON.parse(localStorage.getItem('fz_chat')||'[]');
 let nickname=localStorage.getItem('fz_nick')||'Invité';
-let authToken=localStorage.getItem('fz_token')||''; let onlineSocket=null; let activeRoom=''; let onlineRoomState=null; let onlineChatMessages=[]; let accountMode='login';
+let authToken=localStorage.getItem('fz_token')||''; let club=JSON.parse(localStorage.getItem('fz_club')||'null'); let onlineSocket=null; let activeRoom=''; let onlineRoomState=null; let onlineChatMessages=[]; let accountMode='login';
 function save() {
   localStorage.setItem('fz_team', JSON.stringify(team));
   localStorage.setItem('fz_chat', JSON.stringify(chat));
@@ -156,7 +158,9 @@ function save() {
       chat,
       coins,
       playerUpgrades,
-      nickname
+      nickname,
+      club,
+      career: JSON.parse(localStorage.getItem(CAREER_KEY)||'null')
     }, 'PUT').catch(err => console.error('Erreur sauvegarde:', err));
   }
 }
@@ -164,6 +168,16 @@ function save() {
 function goto(page){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='game'){renderMarket();renderCareer();}if(page==='chat')renderChat();if(page==='profile')renderProfile();if(page==='online')connectOnline();window.scrollTo(0,0)}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.page)));
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.goto)));
+// Identité du club : sauvegarde locale et compte connecté.
+const CLUB_PALETTES={
+ 'blue-white':['#2455a4','#ffffff'],'black-gold':['#111111','#d7b45a'],'green-white':['#167447','#ffffff'],'red-blue':['#c62838','#173c83'],'black-silver':['#17191d','#c4c9d1'],'navy-turquoise':['#102c4c','#35d0c2'],'burgundy-beige':['#702b43','#e8d8bd'],'multi':['#6c43b8','#f0c94a']
+};
+function renderClub(){if(!$('clubName'))return;const c=club||{};$('clubName').value=c.name||'';$('clubPalette').value=c.palette||'blue-white';$('clubLogoStyle').value=c.logoStyle||'shield';$('clubPrimary').value=c.primary||CLUB_PALETTES[$('clubPalette').value][0];$('clubSecondary').value=c.secondary||CLUB_PALETTES[$('clubPalette').value][1];$('clubPreviewName').textContent=c.name||'Mon nouveau club';$('clubBadge').style.background=$('clubPrimary').value;$('clubBadge').style.color=$('clubSecondary').value;$('clubBadge').innerHTML=c.logoData?`<img src="${c.logoData}" alt="Logo du club" style="width:100%;height:100%;object-fit:contain;border-radius:14px">`:((c.name||'FC').trim().split(/\s+/).map(x=>x[0]).join('').slice(0,3).toUpperCase()||'⚽');$('clubLogoHint').textContent='Logo : '+$('clubLogoStyle').selectedOptions[0].textContent;$('clubSaveStatus').textContent=c.name?'Club enregistré : '+c.name:"Ton club n'est pas encore créé.";}
+function updateClubPreview(){if(!$('clubBadge'))return;$('clubPreviewName').textContent=$('clubName').value.trim()||'Mon nouveau club';$('clubBadge').style.background=$('clubPrimary').value;$('clubBadge').style.color=$('clubSecondary').value;$('clubBadge').textContent=($('clubName').value.trim().split(/\s+/).map(x=>x[0]).join('').slice(0,3)||'FC').toUpperCase();$('clubLogoHint').textContent='Logo : '+$('clubLogoStyle').selectedOptions[0].textContent;}
+$('clubPalette').addEventListener('change',()=>{const c=CLUB_PALETTES[$('clubPalette').value];$('clubPrimary').value=c[0];$('clubSecondary').value=c[1];updateClubPreview();});['clubName','clubLogoStyle','clubPrimary','clubSecondary'].forEach(id=>$(id).addEventListener('input',updateClubPreview));
+$('clubLogoUpload').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;if(!['image/png','image/jpeg'].includes(f.type)||f.size>100000){alert('Choisis une image PNG ou JPG de moins de 100 Ko.');e.target.value='';return;}const reader=new FileReader();reader.onload=()=>{club={...(club||{}),logoData:reader.result};renderClub();};reader.readAsDataURL(f);});
+$('saveClub').addEventListener('click',()=>{const name=$('clubName').value.trim();if(!name){alert('Choisis un nom pour ton club.');return;}club={...(club||{}),name,palette:$('clubPalette').value,logoStyle:$('clubLogoStyle').value,primary:$('clubPrimary').value,secondary:$('clubSecondary').value};localStorage.setItem('fz_club',JSON.stringify(club));save();renderClub();$('clubSaveStatus').textContent='Ton club est enregistré !';});
+renderClub();
 // V12 — Mode Carrière : championnat local à 10 équipes, 9 journées.
 const CAREER_KEY='fz_career_v12';
 let career=JSON.parse(localStorage.getItem(CAREER_KEY)||'null');
@@ -174,7 +188,7 @@ const CAREER_CLUBS={
  'La Liga':['Real Madrid','FC Barcelone','Atlético de Madrid','Athletic Bilbao','Real Sociedad','Villarreal','Real Betis','Séville FC','Valence CF'],
  'Serie A':['Inter Milan','AC Milan','Juventus','Napoli','AS Roma','Lazio','Atalanta','Fiorentina','Bologna']
 };
-function careerSave(){localStorage.setItem(CAREER_KEY,JSON.stringify(career));}
+function careerSave(){localStorage.setItem(CAREER_KEY,JSON.stringify(career));if(authToken)save();}
 function shuffled(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 function buildRounds(ids){let arr=ids.slice(),rounds=[];for(let r=0;r<arr.length-1;r++){let games=[];for(let i=0;i<arr.length/2;i++){let a=arr[i],b=arr[arr.length-1-i];games.push({home:r%2===0?a:b,away:r%2===0?b:a,played:false,homeGoals:null,awayGoals:null});}rounds.push(games);arr=[arr[0],arr[arr.length-1],...arr.slice(1,-1)];}return rounds;}
 function startCareer(){if(team.length!==7||!positionsOk()){alert('Construis d’abord ton équipe complète de 7 joueurs dans le Mercato. Elle sera ton équipe dans la carrière.');return}const league=$('careerLeagueSelect').value;const userName=(nickname&&nickname!=='Invité'?nickname:'Mon équipe').slice(0,20);const roster=team.map(id=>PLAYERS.find(p=>p.id===id)).filter(Boolean);const ids=[{id:'user',name:userName,isUser:true,rating:Math.round(roster.reduce((a,p)=>a+p.rating,0)/roster.length),roster:roster.map(p=>({id:p.id,n:p.n,pos:p.pos,rating:p.rating}))},...shuffled(CAREER_CLUBS[league]||CAREER_CLUBS['Premier League']).map((name,i)=>({id:'ai'+i,name,rating:73+Math.floor(Math.random()*16)}))];career={league,round:0,finished:false,teams:ids,rounds:buildRounds(ids.map(t=>t.id)),table:ids.map(t=>({id:t.id,name:t.name,played:0,w:0,d:0,l:0,gf:0,ga:0,pts:0})),history:[]};careerSave();renderCareer();}
@@ -586,6 +600,9 @@ async function setLoggedIn(user, token) {
       chat = Array.isArray(data.save.chat) ? data.save.chat : [];
       coins = Number(data.save.coins ?? 80);
       playerUpgrades = data.save.playerUpgrades || {};
+      club = data.save.club || club;
+      if(data.save.career){career=data.save.career;localStorage.setItem(CAREER_KEY,JSON.stringify(career));}
+      if(club)localStorage.setItem('fz_club',JSON.stringify(club));
 
       localStorage.setItem('fz_team', JSON.stringify(team));
       localStorage.setItem('fz_chat', JSON.stringify(chat));
@@ -631,6 +648,8 @@ async function logoutAccount() {
   chat = [];
   coins = 80;
   playerUpgrades = {};
+  club = null;
+  localStorage.removeItem('fz_club');
 
   localStorage.removeItem('fz_token');
   localStorage.setItem('fz_nick', 'Invité');
@@ -652,12 +671,13 @@ async function logoutAccount() {
   renderChat();
   renderProfile();
   renderCareer();
+  renderClub();
 }function connectOnline(force=false){if(!authToken){$('onlineStatus').textContent='Connecte-toi à ton compte pour créer ou rejoindre une salle.';return;}if(onlineSocket&&onlineSocket.connected&&!force)return;if(typeof io==='undefined'){$('onlineStatus').textContent='Le serveur multijoueur ne répond pas. Ouvre football+ depuis son URL hébergée, pas depuis le fichier HTML.';return;}if(onlineSocket)onlineSocket.disconnect();onlineSocket=io({auth:{token:authToken}});onlineSocket.on('connect',()=>{$('onlineStatus').textContent='Connecté au serveur. Crée une salle ou rejoins celle de ton ami.';if(activeRoom)onlineSocket.emit('room:join',{code:activeRoom});});onlineSocket.on('connect_error',err=>{$('onlineStatus').textContent='Connexion impossible : '+(err.message||'reconnecte-toi au compte')});onlineSocket.on('room:created',data=>{activeRoom=data.code;onlineRoomState=data;renderOnlineRoom();$('onlineStatus').textContent='Salle créée ! Envoie le code à ton ami.'});onlineSocket.on('room:state',data=>{activeRoom=data.code;onlineRoomState=data;renderOnlineRoom()});onlineSocket.on('room:error',msg=>{$('onlineStatus').textContent=msg});onlineSocket.on('room:chat',m=>{onlineChatMessages.push(m);onlineChatMessages=onlineChatMessages.slice(-40);renderRoomChat()});onlineSocket.on('duel:state',data=>{onlineRoomState=data;renderDuel()});onlineSocket.on('duel:result',data=>{onlineRoomState=data;renderDuel()});onlineSocket.on('room:left',()=>{activeRoom='';onlineRoomState=null;renderOnlineRoom()});}
 function renderOnlineRoom(){const r=onlineRoomState;if(!r){$('roomInfo').textContent='Aucune salle rejointe.';$('roomPlayers').innerHTML='';$('startDuel').disabled=true;return;}$('roomInfo').innerHTML=`Code de la salle : <strong style="font-size:22px;color:var(--lime)">${escapeHtml(r.code)}</strong> <button type="button" class="secondary" id="copyRoomCode">Copier le code</button><p class="small">Partage ce code uniquement avec les amis que tu veux inviter.</p>`;$('copyRoomCode').onclick=()=>navigator.clipboard?.writeText(r.code);$('roomPlayers').innerHTML='<h3>Joueurs</h3>'+r.players.map(p=>`<div class="player"><div class="player-avatar">⚽</div><div class="player-info"><strong>${escapeHtml(p.username)}</strong><span>${p.id===r.hostId?'Créateur de la salle':'Joueur'}</span></div></div>`).join('');$('startDuel').disabled=!(r.players.length===2&&r.hostId===onlineSocket?.id&&!r.duel);$('onlineStatus').textContent=r.players.length===2?'Les deux joueurs sont là !':'En attente d’un ami…';renderDuel();}
 function renderRoomChat(){$('roomChat').innerHTML=onlineChatMessages.length?onlineChatMessages.map(m=>`<div class="bubble"><strong>${escapeHtml(m.username)}</strong>${escapeHtml(m.text)}</div>`).join(''):'<p class="small">Aucun message pour le moment.</p>';$('roomChat').scrollTop=$('roomChat').scrollHeight;}
 function renderDuel(){const r=onlineRoomState,box=$('duelActions');if(!r||!r.duel){$('duelStatus').textContent='En attente d’un duel.';$('duelScore').innerHTML='<div><span class="small">TOI</span><strong>0</strong></div><div class="match-score">—</div><div><span class="small">ADVERSAIRE</span><strong>0</strong></div>';box.innerHTML='<p class="small">Le créateur peut lancer le duel quand les deux joueurs sont dans la salle.</p>';return;}const me=onlineSocket?.id,players=r.players,idx=players.findIndex(p=>p.id===me),myGoals=r.duel.goals[idx]||0,otherGoals=r.duel.goals[1-idx]||0;$('duelScore').innerHTML=`<div><span class="small">TOI</span><strong>${myGoals}</strong></div><div class="match-score">${r.duel.finished?'FIN':'VS'}</div><div><span class="small">${escapeHtml(players[1-idx]?.username||'ADVERSAIRE')}</span><strong>${otherGoals}</strong></div>`;$('duelStatus').textContent=r.duel.finished?(myGoals===otherGoals?'Égalité !':myGoals>otherGoals?'Tu remportes le duel ! 🏆':'Ton ami remporte le duel.'):`Tir ${r.duel.shot+1}/5 · ${r.duel.phase==='shoot'?(r.duel.shooter===me?'À toi de tirer !':'Ton ami choisit son tir…'):(r.duel.keeper===me?'Choisis où plonger !':'Ton ami choisit son plongeon…')}`;if(r.duel.finished){box.innerHTML='<p class="notice">Duel terminé. Le créateur peut lancer un nouveau duel.</p>';return;}const dirs=[['left','⬅️ Gauche'],['center','⬆️ Centre'],['right','➡️ Droite']];const canShoot=r.duel.phase==='shoot'&&r.duel.shooter===me&&!r.duel.actions?.[me]?.shot;const canKeep=r.duel.phase==='keep'&&r.duel.keeper===me&&!r.duel.actions?.[me]?.dive;box.innerHTML=dirs.map(d=>`<button type="button" class="${d[0]==='center'?'secondary':''}" data-duel-dir="${d[0]}" ${canShoot||canKeep?'':'disabled'}>${canShoot?'Tirer ':canKeep?'Plonger ':'Attends · '}${d[1]}</button>`).join('');box.querySelectorAll('[data-duel-dir]').forEach(b=>b.onclick=()=>onlineSocket?.emit('duel:action',{code:activeRoom,direction:b.dataset.duelDir}));$('duelLog').innerHTML=(r.duel.log||[]).slice(-8).reverse().map(x=>`<div class="match-event">${escapeHtml(x)}</div>`).join('');}
 $('createRoom').onclick=()=>{if(!authToken){accountDialog('register');return;}connectOnline();onlineSocket?.emit('room:create')};$('joinRoom').onclick=()=>{if(!authToken){accountDialog('register');return;}const code=$('joinCode').value.trim().toUpperCase();if(!code){$('onlineStatus').textContent='Entre le code de ton ami.';return;}connectOnline();onlineSocket?.emit('room:join',{code});};$('startDuel').onclick=()=>onlineSocket?.emit('duel:start',{code:activeRoom});$('roomChatForm').addEventListener('submit',e=>{e.preventDefault();const text=$('roomChatInput').value.trim();if(!text||!activeRoom)return;onlineSocket?.emit('room:chat',{code:activeRoom,text});$('roomChatInput').value='';});
-$('exportData').onclick=()=>{const blob=new Blob([JSON.stringify({nickname,team,chat},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='football+-mes-donnees.json';a.click();URL.revokeObjectURL(url)};
+$('exportData').onclick=()=>{const blob=new Blob([JSON.stringify({nickname,team,chat,coins,club,career},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='football+-mes-donnees.json';a.click();URL.revokeObjectURL(url)};
 async function initApp() {
   if (authToken) {
     try {
@@ -671,6 +691,9 @@ async function initApp() {
         chat = Array.isArray(saved.save.chat) ? saved.save.chat : [];
         coins = Number(saved.save.coins ?? 80);
         playerUpgrades = saved.save.playerUpgrades || {};
+        club = saved.save.club || club;
+        if(saved.save.career){career=saved.save.career;localStorage.setItem(CAREER_KEY,JSON.stringify(career));}
+        if(club)localStorage.setItem('fz_club',JSON.stringify(club));
       } else {
         team = [];
         chat = [];
@@ -722,6 +745,7 @@ async function initApp() {
     p.price = gamePrice(p.rating);
   });
 
+  renderClub();
   renderNews();
   loadFootballNews();
   renderMarket();
