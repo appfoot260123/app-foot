@@ -228,7 +228,15 @@ function renderTeam(){
  const layout=currentFormation().layout;const used={};$('pitch').querySelectorAll('.pitch-slot').forEach(el=>el.remove());
  layout.forEach(slot=>{const [pos,x,y]=slot;const options=selected.filter(p=>p.pos===pos);const p=options[used[pos]||0];used[pos]=(used[pos]||0)+1;const el=document.createElement('div');el.className='pitch-slot';el.style.left=x+'%';el.style.top=y+'%';el.innerHTML=p?`<div class="pitch-player"><span>${pos==='Gardien'?'🧤':pos==='Défenseur'?'🛡️':pos==='Milieu'?'⚙️':'⚽'} ${pos}</span><strong>${p.n.split(' ').slice(-1)[0]}</strong><span class="rating">${p.rating}/100 général</span><button class="danger" data-remove="${p.id}">Retirer</button></div>`:`<div class="pitch-player empty"><span>${pos}</span><strong>＋ À recruter</strong><span>${counts[pos]}/${req[pos]} choisi(s)</span></div>`;$('pitch').appendChild(el)});
  $('profileTeamCount').textContent=team.length+' / 7';
- const training=$('trainingList');
+ $('resetTeam').onclick=()=>{
+ if(!team.length)return;
+ if(!confirm('Veux-tu vraiment vider toute ta composition ?'))return;
+ team=[];
+ save();
+ renderTeam();
+ renderMarket();
+ renderProfile();
+}; const training=$('trainingList');
  training.innerHTML=selected.length?selected.map(p=>{const costM=trainingCost(p.rating),costLabel=costM<1?Math.round(costM*1000000).toLocaleString('fr-FR')+' pièces':costM.toLocaleString('fr-FR',{maximumFractionDigits:2})+' M pièces';return `<div class="player"><div class="player-avatar">${p.initial}</div><div class="player-info"><strong>${p.n}</strong><span>${p.pos} · Général ${p.rating}/94</span><em>Prochain niveau : ${p.rating>=94?'maximum atteint':`+1 pour ${costLabel}`}</em></div><button class="secondary" data-train="${p.id}" ${p.rating>=94||coins<costM?'disabled style="opacity:.45;cursor:not-allowed"':''}>${p.rating>=94?'Max 94':'Entraîner +1'}</button></div>`}).join(''):'<div class="empty">Recrute des joueurs pour pouvoir les entraîner.</div>';
  training.querySelectorAll('[data-train]').forEach(b=>b.onclick=()=>{const id=+b.dataset.train,p=PLAYERS.find(x=>x.id===id);if(!p||p.rating>=94)return;const price=trainingCost(p.rating);if(coins<price)return;coins=Math.round((coins-price)*100)/100;p.rating=Math.min(94,p.rating+1);playerUpgrades[id]=(Number(playerUpgrades[id])||0)+1;p.price=gamePrice(p.rating);save();renderMarket();renderProfile();});
  $('pitch').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{team=team.filter(id=>id!==+b.dataset.remove);save();renderTeam();renderMarket();renderProfile()});
