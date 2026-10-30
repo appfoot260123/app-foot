@@ -333,26 +333,63 @@ function startMatch(){
  MATCH_SCENES=generateMatchScenes();match={aiKey,userRating:Math.round(selected.reduce((a,p)=>a+p.rating,0)/selected.length),userScore:0,aiScore:0,sceneIndex:0,minute:MATCH_SCENES[0].minute,finished:false,log:['00e · Coup d’envoi ! Ton équipe engage.','🗒️ Scénario généré aléatoirement pour ce match.']};
  renderMatch();
 }
+
 function takeChoice(index){
  if(!match||match.finished)return;
- const scene=MATCH_SCENES[match.sceneIndex];if(!scene)return;
+ const scene=MATCH_SCENES[match.sceneIndex];
+ if(!scene)return;
  const selected=team.map(id=>PLAYERS.find(p=>p.id===id)).filter(Boolean);
- const choice=scene.choices[index];if(!choice)return;
- const advantage=(match.userRating-85)*0.006;
- const chance=Math.max(.18,Math.min(.84,choice.chance+advantage));
+ const choice=scene.choices[index];
+ if(!choice)return;
+
+ const aiRating=AI_TEAMS[match.aiKey].rating;
+ const difference=match.userRating-aiRating;
+ const advantage=Math.max(-0.18,Math.min(0.18,difference*0.012));
+ const chance=Math.max(.10,Math.min(.85,choice.chance+advantage));
  const succeeds=Math.random()<chance;
+
  if(scene.kind==='defense'){
-   if(succeeds) match.log.push(`<span class="goal">${scene.minute}e · Défense réussie !</span> ${escapeHtml(choice.success)} <small>Choix : ${escapeHtml(choice.label)}</small>`);
-   else {match.log.push(`<span class="saved">${scene.minute}e · Défense en difficulté.</span> ${escapeHtml(choice.fail)} <small>Choix : ${escapeHtml(choice.label)}</small>`);if(Math.random()<(0.34+(AI_TEAMS[match.aiKey].rating-match.userRating)*0.009)){match.aiScore++;match.log.push(`<span class="saved">${Math.min(scene.minute+1,90)}e · BUT adverse.</span> ${escapeHtml(match.aiName||AI_TEAMS[match.aiKey].name)} profite de l’occasion.`)} }
- } else {
+   if(succeeds){
+     match.log.push(`<span class="goal">${scene.minute}e · Défense réussie !</span> ${escapeHtml(choice.success)} <small>Choix : ${escapeHtml(choice.label)}</small>`);
+   }else{
+     match.log.push(`<span class="saved">${scene.minute}e · Défense en difficulté.</span> ${escapeHtml(choice.fail)} <small>Choix : ${escapeHtml(choice.label)}</small>`);
+     const aiChance=Math.max(.08,Math.min(.75,.34+(aiRating-match.userRating)*0.025));
+     if(Math.random()<aiChance){
+       match.aiScore++;
+       match.log.push(`<span class="saved">${Math.min(scene.minute+1,90)}e · BUT adverse.</span> ${escapeHtml(match.aiName||AI_TEAMS[match.aiKey].name)} profite de l’occasion.`);
+     }
+   }
+ }else{
    const scorer=selected.filter(p=>p.pos==='Attaquant').sort((a,b)=>b.rating-a.rating)[0]?.n||selected[0]?.n||'Ton joueur';
-   if(succeeds){match.userScore++;match.log.push(`<span class="goal">${scene.minute}e · BUT !</span> ${escapeHtml(scorer)} : ${escapeHtml(choice.success)} <small>Choix : ${escapeHtml(choice.label)}</small>`)}
-   else match.log.push(`<span class="saved">${scene.minute}e · Occasion manquée.</span> ${escapeHtml(choice.fail)} <small>Choix : ${escapeHtml(choice.label)}</small>`);
-   if(Math.random() < (0.22+(AI_TEAMS[match.aiKey].rating-80)*0.012)){const aiScored=Math.random() < (0.24+(AI_TEAMS[match.aiKey].rating-match.userRating)*0.008);if(aiScored){match.aiScore++;match.log.push(`<span class="saved">${Math.min(scene.minute+3,90)}e · But adverse.</span> ${escapeHtml(match.aiName||AI_TEAMS[match.aiKey].name)} profite d’une transition rapide et marque.`)}else match.log.push(`<small>${Math.min(scene.minute+3,90)}e ·</small> ${escapeHtml(match.aiName||AI_TEAMS[match.aiKey].name)} tente sa chance, mais ton gardien réalise l’arrêt.`)}
+   if(succeeds){
+     match.userScore++;
+     match.log.push(`<span class="goal">${scene.minute}e · BUT !</span> ${escapeHtml(scorer)} : ${escapeHtml(choice.success)} <small>Choix : ${escapeHtml(choice.label)}</small>`);
+   }else{
+     match.log.push(`<span class="saved">${scene.minute}e · Occasion manquée.</span> ${escapeHtml(choice.fail)} <small>Choix : ${escapeHtml(choice.label)}</small>`);
+   }
+
+   const opportunityChance=Math.max(.08,Math.min(.75,.22+(aiRating-match.userRating)*0.025));
+   if(Math.random()<opportunityChance){
+     const aiScored=Math.random()<Math.max(.08,Math.min(.85,.24+(aiRating-match.userRating)*0.025));
+     if(aiScored){
+       match.aiScore++;
+       match.log.push(`<span class="saved">${Math.min(scene.minute+3,90)}e · But adverse.</span> ${escapeHtml(match.aiName||AI_TEAMS[match.aiKey].name)} profite d’une transition rapide et marque.`);
+     }else{
+       match.log.push(`<small>${Math.min(scene.minute+3,90)}e ·</small> ${escapeHtml(match.aiName||AI_TEAMS[match.aiKey].name)} tente sa chance, mais ton gardien réalise l’arrêt.`);
+     }
+   }
  }
+
  match.sceneIndex++;
- if(match.sceneIndex>=MATCH_SCENES.length){match.minute=90;match.finished=true;match.log.push('🏁 90e · Coup de sifflet final !');awardMatchCoins();if(match.careerMatch)completeCareerMatch()}
- else match.minute=MATCH_SCENES[match.sceneIndex].minute;
+ if(match.sceneIndex>=MATCH_SCENES.length){
+   match.minute=90;
+   match.finished=true;
+   match.log.push('🏁 90e · Coup de sifflet final !');
+   awardMatchCoins();
+   if(match.careerMatch)completeCareerMatch();
+ }else{
+   match.minute=MATCH_SCENES[match.sceneIndex].minute;
+ }
  renderMatch();
 }
 
