@@ -124,15 +124,43 @@ const PLAYERS=[
 // Valeur marchande indicative affichée séparément du coût jouable du mercato.
 function gamePrice(r){if(r>=90)return 30+(r-90)*5;if(r>=80)return 12+(r-80)*1.4;if(r>=70)return 5.5+(r-70)*0.7;return 2.5+(r-60)*0.35;}
 let playerUpgrades=JSON.parse(localStorage.getItem('fz_upgrades')||'{}');
-PLAYERS.forEach(p=>{const baseRating=p.rating;if(baseRating>=90)p.value=100;else if(baseRating>=80)p.value=Math.round(50+(baseRating-80)*(35/9));else if(baseRating>=70)p.value=Math.round(20+(baseRating-70)*2.8);else p.value=Math.round(8+(baseRating-60)*1.1);p.rating=Math.min(94,baseRating+(Number(playerUpgrades[p.id])||0));p.price=gamePrice(p.rating);});
-let team=JSON.parse(localStorage.getItem('fz_team')||'[]');
+PLAYERS.forEach(p => {
+  p.baseRating = p.rating;
+
+  const baseRating = p.baseRating;
+
+  if (baseRating >= 90) p.value = 100;
+  else if (baseRating >= 80) p.value = Math.round(50 + (baseRating - 80) * (35 / 9));
+  else if (baseRating >= 70) p.value = Math.round(20 + (baseRating - 70) * 2.8);
+  else p.value = Math.round(8 + (baseRating - 60) * 1.1);
+
+  p.rating = Math.min(94, baseRating + (Number(playerUpgrades[p.id]) || 0));
+  p.price = gamePrice(p.rating);
+});
+ let team=JSON.parse(localStorage.getItem('fz_team')||'[]');
 // V8 : migration vers une sélection libre, sans composition préremplie.
 if(localStorage.getItem('fz_v8_init')!=='1'){team=[];localStorage.setItem('fz_team','[]');localStorage.setItem('fz_v8_init','1');}
 let coins=Number(localStorage.getItem('fz_coins') ?? 80);
 let chat=JSON.parse(localStorage.getItem('fz_chat')||'[]');
 let nickname=localStorage.getItem('fz_nick')||'Invité';
 let authToken=localStorage.getItem('fz_token')||''; let onlineSocket=null; let activeRoom=''; let onlineRoomState=null; let onlineChatMessages=[]; let accountMode='login';
-function save(){localStorage.setItem('fz_team',JSON.stringify(team));localStorage.setItem('fz_chat',JSON.stringify(chat));localStorage.setItem('fz_coins',String(coins));localStorage.setItem('fz_upgrades',JSON.stringify(playerUpgrades));}
+function save() {
+  localStorage.setItem('fz_team', JSON.stringify(team));
+  localStorage.setItem('fz_chat', JSON.stringify(chat));
+  localStorage.setItem('fz_coins', String(coins));
+  localStorage.setItem('fz_upgrades', JSON.stringify(playerUpgrades));
+
+  if (authToken) {
+    api('/api/save', {
+      team,
+      chat,
+      coins,
+      playerUpgrades,
+      nickname
+    }, 'PUT').catch(err => console.error('Erreur sauvegarde:', err));
+  }
+}
+
 function goto(page){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));if(page==='game'){renderMarket();renderCareer();}if(page==='chat')renderChat();if(page==='profile')renderProfile();if(page==='online')connectOnline();window.scrollTo(0,0)}
 document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.page)));
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>goto(b.dataset.goto)));
@@ -522,16 +550,185 @@ function accountDialog(mode='login'){accountMode=mode;$('accountModal').classLis
 $('accountBtn').onclick=()=>{if(authToken){if(confirm('Se déconnecter de football+ ?'))logoutAccount();}else accountDialog('login')};
 $('closeModal').onclick=()=>$('accountModal').classList.remove('open');
 $('showLogin').onclick=()=>accountDialog('login');$('showRegister').onclick=()=>accountDialog('register');
-async function api(path,body){const res=await fetch(path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(authToken?{Authorization:'Bearer '+authToken}:{})},body:body?JSON.stringify(body):undefined});const data=await res.json().catch(()=>({error:'Réponse du serveur illisible'}));if(!res.ok)throw Error(data.error||'Erreur du serveur');return data}
-function setLoggedIn(user,token){authToken=token;nickname=user.username;localStorage.setItem('fz_token',token);localStorage.setItem('fz_nick',nickname);$('userLabel').textContent=nickname;$('accountBtn').textContent='Déconnexion';$('accountModal').classList.remove('open');$('accountMessage').textContent='';connectOnline(true);renderChat();renderProfile();}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('accountMessage').textContent='Connexion…';try{const data=await api('/api/login',{username:$('loginName').value.trim(),password:$('loginPassword').value});setLoggedIn(data.user,data.token)}catch(err){$('accountMessage').textContent=err.message}});
-$('registerForm').addEventListener('submit',async e=>{e.preventDefault();$('accountMessage').textContent='Création du compte…';try{const data=await api('/api/register',{username:$('registerName').value.trim(),password:$('registerPassword').value});setLoggedIn(data.user,data.token)}catch(err){$('accountMessage').textContent=err.message}});
-async function logoutAccount(){if(onlineSocket){onlineSocket.disconnect();onlineSocket=null;}authToken='';nickname='Invité';activeRoom='';onlineRoomState=null;localStorage.removeItem('fz_token');localStorage.setItem('fz_nick','Invité');$('userLabel').textContent='Invité';$('accountBtn').textContent='Connexion';$('onlineStatus').textContent='Déconnecté. Connecte-toi pour jouer en ligne.';renderProfile();}
-function connectOnline(force=false){if(!authToken){$('onlineStatus').textContent='Connecte-toi à ton compte pour créer ou rejoindre une salle.';return;}if(onlineSocket&&onlineSocket.connected&&!force)return;if(typeof io==='undefined'){$('onlineStatus').textContent='Le serveur multijoueur ne répond pas. Ouvre football+ depuis son URL hébergée, pas depuis le fichier HTML.';return;}if(onlineSocket)onlineSocket.disconnect();onlineSocket=io({auth:{token:authToken}});onlineSocket.on('connect',()=>{$('onlineStatus').textContent='Connecté au serveur. Crée une salle ou rejoins celle de ton ami.';if(activeRoom)onlineSocket.emit('room:join',{code:activeRoom});});onlineSocket.on('connect_error',err=>{$('onlineStatus').textContent='Connexion impossible : '+(err.message||'reconnecte-toi au compte')});onlineSocket.on('room:created',data=>{activeRoom=data.code;onlineRoomState=data;renderOnlineRoom();$('onlineStatus').textContent='Salle créée ! Envoie le code à ton ami.'});onlineSocket.on('room:state',data=>{activeRoom=data.code;onlineRoomState=data;renderOnlineRoom()});onlineSocket.on('room:error',msg=>{$('onlineStatus').textContent=msg});onlineSocket.on('room:chat',m=>{onlineChatMessages.push(m);onlineChatMessages=onlineChatMessages.slice(-40);renderRoomChat()});onlineSocket.on('duel:state',data=>{onlineRoomState=data;renderDuel()});onlineSocket.on('duel:result',data=>{onlineRoomState=data;renderDuel()});onlineSocket.on('room:left',()=>{activeRoom='';onlineRoomState=null;renderOnlineRoom()});}
+
+async function api(path, body, method) {
+  const res = await fetch(path, {
+    method: method || (body ? 'POST' : 'GET'),
+    headers: {
+      'Content-Type': 'application/json',
+      ...(authToken ? { Authorization: 'Bearer ' + authToken } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json().catch(() => ({
+    error: 'Réponse du serveur illisible'
+  }));
+  if (!res.ok) throw Error(data.error || 'Erreur du serveur');
+  return data;
+}
+async function setLoggedIn(user, token) {
+  authToken = token;
+  nickname = user.username;
+
+  localStorage.setItem('fz_token', token);
+  localStorage.setItem('fz_nick', nickname);
+
+  $('userLabel').textContent = nickname;
+  $('accountBtn').textContent = 'Déconnexion';
+  $('accountModal').classList.remove('open');
+  $('accountMessage').textContent = 'Chargement de ton équipe…';
+
+  try {
+    const data = await api('/api/save');
+
+    if (data.save) {
+      team = Array.isArray(data.save.team) ? data.save.team : [];
+      chat = Array.isArray(data.save.chat) ? data.save.chat : [];
+      coins = Number(data.save.coins ?? 80);
+      playerUpgrades = data.save.playerUpgrades || {};
+
+      localStorage.setItem('fz_team', JSON.stringify(team));
+      localStorage.setItem('fz_chat', JSON.stringify(chat));
+      localStorage.setItem('fz_coins', String(coins));
+      localStorage.setItem('fz_upgrades', JSON.stringify(playerUpgrades));
+    } else {
+      team = [];
+      chat = [];
+      coins = 80;
+      playerUpgrades = {};
+      save();
+    }
+   PLAYERS.forEach(p => {
+  p.rating = Math.min(94, p.baseRating + (Number(playerUpgrades[p.id]) || 0));
+  p.price = gamePrice(p.rating);
+});
+
+$('accountMessage').textContent = '';
+renderMarket();
+renderChat();
+renderProfile();
+renderCareer();
+connectOnline(true);
+  
+  } catch (err) {
+    $('accountMessage').textContent = 'Erreur de chargement : ' + err.message;
+  }
+}$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('accountMessage').textContent='Connexion…';try{const data=await api('/api/login',{username:$('loginName').value.trim(),password:$('loginPassword').value});await setLoggedIn(data.user, data.token)}catch(err){$('accountMessage').textContent=err.message}});
+$('registerForm').addEventListener('submit',async e=>{e.preventDefault();$('accountMessage').textContent='Création du compte…';try{const data=await api('/api/register',{username:$('registerName').value.trim(),password:$('registerPassword').value});await setLoggedIn(data.user, data.token)}catch(err){$('accountMessage').textContent=err.message}});
+async function logoutAccount() {
+  if (onlineSocket) {
+    onlineSocket.disconnect();
+    onlineSocket = null;
+  }
+
+  authToken = '';
+  nickname = 'Invité';
+  activeRoom = '';
+  onlineRoomState = null;
+  onlineChatMessages = [];
+
+  team = [];
+  chat = [];
+  coins = 80;
+  playerUpgrades = {};
+
+  localStorage.removeItem('fz_token');
+  localStorage.setItem('fz_nick', 'Invité');
+  localStorage.setItem('fz_team', '[]');
+  localStorage.setItem('fz_chat', '[]');
+  localStorage.setItem('fz_coins', '80');
+  localStorage.setItem('fz_upgrades', '{}');
+
+  PLAYERS.forEach(p => {
+    p.rating = p.baseRating;
+    p.price = gamePrice(p.rating);
+  });
+
+  $('userLabel').textContent = 'Invité';
+  $('accountBtn').textContent = 'Connexion';
+  $('onlineStatus').textContent = 'Déconnecté. Connecte-toi pour jouer en ligne.';
+
+  renderMarket();
+  renderChat();
+  renderProfile();
+  renderCareer();
+}function connectOnline(force=false){if(!authToken){$('onlineStatus').textContent='Connecte-toi à ton compte pour créer ou rejoindre une salle.';return;}if(onlineSocket&&onlineSocket.connected&&!force)return;if(typeof io==='undefined'){$('onlineStatus').textContent='Le serveur multijoueur ne répond pas. Ouvre football+ depuis son URL hébergée, pas depuis le fichier HTML.';return;}if(onlineSocket)onlineSocket.disconnect();onlineSocket=io({auth:{token:authToken}});onlineSocket.on('connect',()=>{$('onlineStatus').textContent='Connecté au serveur. Crée une salle ou rejoins celle de ton ami.';if(activeRoom)onlineSocket.emit('room:join',{code:activeRoom});});onlineSocket.on('connect_error',err=>{$('onlineStatus').textContent='Connexion impossible : '+(err.message||'reconnecte-toi au compte')});onlineSocket.on('room:created',data=>{activeRoom=data.code;onlineRoomState=data;renderOnlineRoom();$('onlineStatus').textContent='Salle créée ! Envoie le code à ton ami.'});onlineSocket.on('room:state',data=>{activeRoom=data.code;onlineRoomState=data;renderOnlineRoom()});onlineSocket.on('room:error',msg=>{$('onlineStatus').textContent=msg});onlineSocket.on('room:chat',m=>{onlineChatMessages.push(m);onlineChatMessages=onlineChatMessages.slice(-40);renderRoomChat()});onlineSocket.on('duel:state',data=>{onlineRoomState=data;renderDuel()});onlineSocket.on('duel:result',data=>{onlineRoomState=data;renderDuel()});onlineSocket.on('room:left',()=>{activeRoom='';onlineRoomState=null;renderOnlineRoom()});}
 function renderOnlineRoom(){const r=onlineRoomState;if(!r){$('roomInfo').textContent='Aucune salle rejointe.';$('roomPlayers').innerHTML='';$('startDuel').disabled=true;return;}$('roomInfo').innerHTML=`Code de la salle : <strong style="font-size:22px;color:var(--lime)">${escapeHtml(r.code)}</strong> <button type="button" class="secondary" id="copyRoomCode">Copier le code</button><p class="small">Partage ce code uniquement avec les amis que tu veux inviter.</p>`;$('copyRoomCode').onclick=()=>navigator.clipboard?.writeText(r.code);$('roomPlayers').innerHTML='<h3>Joueurs</h3>'+r.players.map(p=>`<div class="player"><div class="player-avatar">⚽</div><div class="player-info"><strong>${escapeHtml(p.username)}</strong><span>${p.id===r.hostId?'Créateur de la salle':'Joueur'}</span></div></div>`).join('');$('startDuel').disabled=!(r.players.length===2&&r.hostId===onlineSocket?.id&&!r.duel);$('onlineStatus').textContent=r.players.length===2?'Les deux joueurs sont là !':'En attente d’un ami…';renderDuel();}
 function renderRoomChat(){$('roomChat').innerHTML=onlineChatMessages.length?onlineChatMessages.map(m=>`<div class="bubble"><strong>${escapeHtml(m.username)}</strong>${escapeHtml(m.text)}</div>`).join(''):'<p class="small">Aucun message pour le moment.</p>';$('roomChat').scrollTop=$('roomChat').scrollHeight;}
 function renderDuel(){const r=onlineRoomState,box=$('duelActions');if(!r||!r.duel){$('duelStatus').textContent='En attente d’un duel.';$('duelScore').innerHTML='<div><span class="small">TOI</span><strong>0</strong></div><div class="match-score">—</div><div><span class="small">ADVERSAIRE</span><strong>0</strong></div>';box.innerHTML='<p class="small">Le créateur peut lancer le duel quand les deux joueurs sont dans la salle.</p>';return;}const me=onlineSocket?.id,players=r.players,idx=players.findIndex(p=>p.id===me),myGoals=r.duel.goals[idx]||0,otherGoals=r.duel.goals[1-idx]||0;$('duelScore').innerHTML=`<div><span class="small">TOI</span><strong>${myGoals}</strong></div><div class="match-score">${r.duel.finished?'FIN':'VS'}</div><div><span class="small">${escapeHtml(players[1-idx]?.username||'ADVERSAIRE')}</span><strong>${otherGoals}</strong></div>`;$('duelStatus').textContent=r.duel.finished?(myGoals===otherGoals?'Égalité !':myGoals>otherGoals?'Tu remportes le duel ! 🏆':'Ton ami remporte le duel.'):`Tir ${r.duel.shot+1}/5 · ${r.duel.phase==='shoot'?(r.duel.shooter===me?'À toi de tirer !':'Ton ami choisit son tir…'):(r.duel.keeper===me?'Choisis où plonger !':'Ton ami choisit son plongeon…')}`;if(r.duel.finished){box.innerHTML='<p class="notice">Duel terminé. Le créateur peut lancer un nouveau duel.</p>';return;}const dirs=[['left','⬅️ Gauche'],['center','⬆️ Centre'],['right','➡️ Droite']];const canShoot=r.duel.phase==='shoot'&&r.duel.shooter===me&&!r.duel.actions?.[me]?.shot;const canKeep=r.duel.phase==='keep'&&r.duel.keeper===me&&!r.duel.actions?.[me]?.dive;box.innerHTML=dirs.map(d=>`<button type="button" class="${d[0]==='center'?'secondary':''}" data-duel-dir="${d[0]}" ${canShoot||canKeep?'':'disabled'}>${canShoot?'Tirer ':canKeep?'Plonger ':'Attends · '}${d[1]}</button>`).join('');box.querySelectorAll('[data-duel-dir]').forEach(b=>b.onclick=()=>onlineSocket?.emit('duel:action',{code:activeRoom,direction:b.dataset.duelDir}));$('duelLog').innerHTML=(r.duel.log||[]).slice(-8).reverse().map(x=>`<div class="match-event">${escapeHtml(x)}</div>`).join('');}
 $('createRoom').onclick=()=>{if(!authToken){accountDialog('register');return;}connectOnline();onlineSocket?.emit('room:create')};$('joinRoom').onclick=()=>{if(!authToken){accountDialog('register');return;}const code=$('joinCode').value.trim().toUpperCase();if(!code){$('onlineStatus').textContent='Entre le code de ton ami.';return;}connectOnline();onlineSocket?.emit('room:join',{code});};$('startDuel').onclick=()=>onlineSocket?.emit('duel:start',{code:activeRoom});$('roomChatForm').addEventListener('submit',e=>{e.preventDefault();const text=$('roomChatInput').value.trim();if(!text||!activeRoom)return;onlineSocket?.emit('room:chat',{code:activeRoom,text});$('roomChatInput').value='';});
 $('exportData').onclick=()=>{const blob=new Blob([JSON.stringify({nickname,team,chat},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='football+-mes-donnees.json';a.click();URL.revokeObjectURL(url)};
-renderNews();loadFootballNews();renderMarket();renderChat();renderProfile();renderMatch();renderCareer();$('userLabel').textContent=nickname;if(authToken){$('accountBtn').textContent='Déconnexion';api('/api/me').then(d=>{nickname=d.user.username;localStorage.setItem('fz_nick',nickname);$('userLabel').textContent=nickname;connectOnline(true)}).catch(()=>{authToken='';localStorage.removeItem('fz_token');nickname='Invité';$('userLabel').textContent=nickname})}
-</script></body></html>
+async function initApp() {
+  if (authToken) {
+    try {
+      const data = await api('/api/me');
+      nickname = data.user.username;
+
+      const saved = await api('/api/save');
+
+      if (saved.save) {
+        team = Array.isArray(saved.save.team) ? saved.save.team : [];
+        chat = Array.isArray(saved.save.chat) ? saved.save.chat : [];
+        coins = Number(saved.save.coins ?? 80);
+        playerUpgrades = saved.save.playerUpgrades || {};
+      } else {
+        team = [];
+        chat = [];
+        coins = 80;
+        playerUpgrades = {};
+        save();
+      }
+
+      PLAYERS.forEach(p => {
+        p.rating = Math.min(94, p.baseRating + (Number(playerUpgrades[p.id]) || 0));
+        p.price = gamePrice(p.rating);
+      });
+
+      localStorage.setItem('fz_nick', nickname);
+      localStorage.setItem('fz_team', JSON.stringify(team));
+      localStorage.setItem('fz_chat', JSON.stringify(chat));
+      localStorage.setItem('fz_coins', String(coins));
+      localStorage.setItem('fz_upgrades', JSON.stringify(playerUpgrades));
+
+      $('accountBtn').textContent = 'Déconnexion';
+      connectOnline(true);
+    } catch (err) {
+      console.error('Erreur de chargement du compte:', err);
+      authToken = '';
+      localStorage.removeItem('fz_token');
+      nickname = 'Invité';
+      team = [];
+      chat = [];
+      coins = 80;
+      playerUpgrades = {};
+    }
+  } else {
+    nickname = 'Invité';
+    team = [];
+    chat = [];
+    coins = 80;
+    playerUpgrades = {};
+    localStorage.removeItem('fz_team');
+    localStorage.removeItem('fz_chat');
+    localStorage.removeItem('fz_coins');
+    localStorage.removeItem('fz_upgrades');
+  }
+
+  localStorage.setItem('fz_nick', nickname);
+  $('userLabel').textContent = nickname;
+
+  PLAYERS.forEach(p => {
+    p.rating = Math.min(94, p.baseRating + (Number(playerUpgrades[p.id]) || 0));
+    p.price = gamePrice(p.rating);
+  });
+
+  renderNews();
+  loadFootballNews();
+  renderMarket();
+  renderChat();
+  renderProfile();
+  renderMatch();
+  renderCareer();
+}
+
+initApp();</script></body></html>
