@@ -19,6 +19,9 @@ const server = http.createServer(app);
 const io = new Server(server);
 app.disable('x-powered-by');
 app.use(express.json({ limit: '20kb' }));
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/', rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: true, legacyHeaders: false }));
 
@@ -30,6 +33,16 @@ async function initDb() {
     password_hash TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
+}
+
+async function initGameDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS game_saves (
+      user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      game_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
 }
 function makeToken(user) { return jwt.sign({ sub: String(user.id), username: user.username }, JWT_SECRET, { expiresIn: '7d' }); }
 function publicUser(row) { return { id: String(row.id), username: row.username }; }
@@ -66,6 +79,46 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/me', authHttp, async (req, res) => {
   try { const { rows } = await pool.query('SELECT id, username FROM users WHERE id=$1', [req.auth.sub]); if (!rows.length) return res.status(401).json({ error: 'Compte introuvable.' }); res.json({ user: publicUser(rows[0]) }); }
   catch { res.status(500).json({ error: 'Impossible de vérifier le compte.' }); }
+});
+
+app.get('/api/save', authHttp, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT game_data FROM game_saves WHERE user_id=$1',
+      [req.auth.sub]
+    );
+    res.json({ save: rows[0]?.game_data || null });
+  } catch (err) {
+    console.error('load save error', err.message);
+    res.status(500).json({ error: 'Impossible de charger la sauvegarde.' });
+  }
+});
+
+app.put('/api/save', authHttp, async (req, res) => {
+  try {
+    const data = req.body;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return res.status(400).json({ error: 'Sauvegarde invalide.' });
+    }
+
+    const json = JSON.stringify(data);
+    if (json.length > 15000) {
+      return res.status(413).json({ error: 'Sauvegarde trop volumineuse.' });
+    }
+
+    await pool.query(
+      `INSERT INTO game_saves (user_id, game_data)
+       VALUES ($1, $2::jsonb)
+       ON CONFLICT (user_id)
+       DO UPDATE SET game_data=$2::jsonb, updated_at=NOW()`,
+      [req.auth.sub, json]
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('save error', err.message);
+    res.status(500).json({ error: 'Impossible de sauvegarder.' });
+  }
 });
 
 const rooms = new Map();
@@ -123,4 +176,10 @@ io.on('connection', socket => {
   });
 });
 app.get('*', (req,res) => res.sendFile(path.join(__dirname,'index.html')));
-initDb().then(()=>server.listen(PORT,'0.0.0.0',()=>console.log(`FootZone démarré sur le port ${PORT}`))).catch(err=>{console.error('Database startup error:',err.message);process.exit(1)});
+initDb()
+  .then(() => initGameDb())
+  .then(() => server.listen(PORT, '0.0.0.0', () => console.log(`FootZone démarré sur le port ${PORT}`)))
+  .catch(err => {
+    console.error('Database startup error:', err.message);
+    process.exit(1);
+  });
