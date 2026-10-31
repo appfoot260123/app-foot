@@ -175,6 +175,70 @@ io.on('connection', socket => {
     }
   });
 });
+// ===== ACTUALITÉS VIDÉOS FOOTBALL =====
+
+function decodeXml(text) {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
+app.get('/api/football-videos', async (req, res) => {
+  try {
+    const channels = [
+      'UCyIV8rkza5Uk_sJIhqilBvQ',
+      'UC58LMAlfwtGRNR6Xpd4DlSA'
+    ];
+
+    const results = await Promise.all(
+      channels.map(async (channelId) => {
+        const response = await fetch(
+          `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
+          { signal: AbortSignal.timeout(10000) }
+        );
+
+        if (!response.ok) return [];
+
+        const xml = await response.text();
+        const entries = xml.match(/<entry>[\s\S]*?<\/entry>/g) || [];
+
+        return entries.map(entry => {
+          const videoId = entry.match(/<yt:videoId>(.*?)<\/yt:videoId>/)?.[1];
+          const title = entry.match(/<title>([\s\S]*?)<\/title>/)?.[1];
+          const published = entry.match(/<published>(.*?)<\/published>/)?.[1];
+
+          if (!videoId || !title) return null;
+
+          return {
+            id: videoId,
+            title: decodeXml(title),
+            published: published || '',
+            url: `https://www.youtube.com/watch?v=${videoId}`
+          };
+        }).filter(Boolean);
+      })
+    );
+
+    const videos = results
+      .flat()
+      .sort((a, b) => new Date(b.published) - new Date(a.published))
+      .slice(0, 24);
+
+    res.set('Cache-Control', 'public, max-age=600');
+    res.json({ videos });
+
+  } catch (error) {
+    console.error('Erreur vidéos football:', error.message);
+    res.status(500).json({
+      error: 'Impossible de récupérer les vidéos.'
+    });
+  }
+});
+
+// ===== FIN ACTUALITÉS VIDÉOS =====
 app.get('*', (req,res) => res.sendFile(path.join(__dirname,'index.html')));
 initDb()
   .then(() => initGameDb())
