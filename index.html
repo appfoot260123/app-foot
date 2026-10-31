@@ -566,7 +566,7 @@ $('closeModal').onclick=()=>$('accountModal').classList.remove('open');
 $('showLogin').onclick=()=>accountDialog('login');$('showRegister').onclick=()=>accountDialog('register');
 
 async function api(path, body, method) {
-  const res = await fetch(path, {
+const res = await fetch('https://app-foot-vszh.onrender.com' + path, {
     method: method || (body ? 'POST' : 'GET'),
     headers: {
       'Content-Type': 'application/json',
