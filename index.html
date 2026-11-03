@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>football+ V23 — Comptes et jeu en ligne</title>
 <style>
-:root{--bg:#0b1020;--panel:#121a2d;--panel2:#18233b;--text:#f4f7ff;--muted:#9eabc7;--line:#283653;--green:#8cf0b0;--lime:#c4ff72;--blue:#7da5ff;--red:#ff818b;--yellow:#ffd477}
+:root{--bg:#070d13;--panel:#101a22;--panel2:#17252d;--text:#f7fbff;--muted:#a8b6bd;--line:#263b42;--green:#00e676;--lime:#39ff78;--blue:#8ad8ff;--red:#ff818b;--yellow:#ffd477}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
 button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:11px;padding:10px 13px;font-weight:750;background:var(--lime);color:#111827}button.secondary{background:#263653;color:var(--text)}button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}button.danger{background:#482631;color:#ffdfe3}
 input,textarea,select{width:100%;background:#0c1426;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px;outline:none}input:focus,textarea:focus{border-color:var(--blue)}
@@ -22,6 +22,49 @@ footer{border-top:1px solid var(--line);padding:16px 22px;color:var(--muted);fon
 @media(max-width:760px){.pitch{min-height:540px}.pitch-slot{width:88px;max-width:29%}.pitch-player{font-size:10px;padding:6px 3px}.pitch-player strong{font-size:11px}.layout{grid-template-columns:1fr}aside{position:sticky;top:70px;z-index:4;display:flex;overflow:auto;border-right:0;border-bottom:1px solid var(--line);padding:7px;background:var(--bg)}.navbtn{width:auto;white-space:nowrap;margin:0;padding:9px 12px}.navicon{width:auto}main{padding:16px}.grid2{grid-template-columns:1fr}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:21px}.tag{display:none}.slots{grid-template-columns:repeat(2,1fr)}}
 
 .arcade-panel{margin-top:12px;background:#0b1725;border:1px solid #34485b;border-radius:16px;padding:12px;color:#fff}.arcade-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.arcade-bigscore{font-size:28px;font-weight:900;color:#c4ff72}.arcade-canvas-wrap{margin-top:10px;border-radius:12px;overflow:hidden;border:2px solid #b7e3bf;background:#15583f}#fzArcade{display:block;width:100%;height:auto;touch-action:none}.arcade-help{font-size:13px;color:#c7d6e2;margin:9px 0}.arcade-buttons{display:flex;gap:8px;flex-wrap:wrap}.arcade-buttons button{flex:1;min-width:125px}.arcade-pad{display:grid;grid-template-columns:repeat(3,48px);gap:4px;justify-content:center;margin:10px auto}.arcade-pad button{padding:6px;font-size:18px;touch-action:none}
+
+/* football+ V18 — interface compacte à sous-onglets */
+.game-hub{margin:0 0 18px}
+.game-hub-hero{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:17px 19px;border:1px solid #285342;border-radius:17px;background:radial-gradient(circle at 88% 15%,#174d35 0,transparent 38%),linear-gradient(115deg,#101c22,#0c151c);margin-bottom:12px}
+.game-hub-hero h1{margin:3px 0 4px;font-size:clamp(24px,3vw,34px)}
+.game-hub-hero p{margin:0;color:#b7c7c5;font-size:13px}
+.game-hub-mark{width:54px;height:54px;flex:0 0 54px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,#baff54,#00dc72);color:#06140d;font-size:28px;font-weight:1000;box-shadow:0 7px 24px #00e67630}
+.game-tabs{position:sticky;top:70px;z-index:4;display:flex;gap:7px;overflow-x:auto;padding:8px;margin:0 0 15px;background:#081118ed;border:1px solid #203a35;border-radius:14px;backdrop-filter:blur(12px);scrollbar-width:thin}
+.game-tab{flex:0 0 auto;white-space:nowrap;background:transparent;border:1px solid transparent;color:#aab9bd;padding:10px 13px;border-radius:10px;font-size:13px}
+.game-tab.active{background:linear-gradient(135deg,#c4ff72,#00df70);color:#07130c;border-color:#a9ff5e;box-shadow:0 4px 16px #00e67624}
+.game-panel{display:none;animation:panelIn .18s ease}
+.game-panel.active{display:block}
+@keyframes panelIn{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.game-panel>.card,.game-panel>.notice{margin-top:12px}
+.game-panel .grid2{grid-template-columns:minmax(0,1fr)}
+.game-panel-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:3px 0 12px}
+.game-panel-title h2{margin:0}
+.game-quickgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0 0 12px}
+.game-quick{background:#101c22;border:1px solid #29423b;border-radius:12px;padding:11px}
+.game-quick strong{display:block;color:var(--lime);font-size:17px}
+.game-quick span{font-size:11px;color:var(--muted)}
+#game .card{border-color:#263d40}
+#game .stat{background:#0d171c;border-color:#263d40}
+#game .notice{border-color:#315344}
+#game .pitch{min-height:390px}
+#game .pitch-wrap{padding:9px}
+#game .market-section{margin-top:0}
+#game .market-help{font-size:11px}
+.training-details{padding:0!important;overflow:hidden}
+.training-details>summary{cursor:pointer;list-style:none;padding:15px 16px;font-weight:850;color:var(--lime)}
+.training-details>summary::-webkit-details-marker{display:none}
+.training-details>summary:after{content:"＋";float:right}
+.training-details[open]>summary:after{content:"−"}
+.training-details #trainingPanel{border:0;border-radius:0;margin:0!important}
+@media(max-width:760px){
+ .game-tabs{top:62px;margin-left:-4px;margin-right:-4px}
+ .game-hub-hero{padding:14px}
+ .game-hub-mark{width:44px;height:44px;flex-basis:44px}
+ .game-quickgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #game .pitch{min-height:330px}
+ main{padding:16px}
+}
+
 </style>
 </head>
 <body>
@@ -837,4 +880,103 @@ async function initApp() {
   renderCareer();
 }
 
-initApp();</script></body></html>
+initApp();</script>
+<script>
+/* Réorganisation de l'espace Équipe & carrière : mêmes fonctions, navigation par onglets. */
+(function(){
+  const game=document.getElementById('game');
+  if(!game || game.dataset.v18Ready) return;
+  game.dataset.v18Ready='1';
+
+  const direct=[...game.children];
+  const clubCreator=game.querySelector('#clubCreator');
+  const mainGrid=direct.find(el=>el.classList && el.classList.contains('grid2'));
+  const teamCard=mainGrid && mainGrid.children[0];
+  const marketCard=mainGrid && mainGrid.children[1];
+  const notices=direct.filter(el=>el.classList && el.classList.contains('notice'));
+  const realismNotice=notices[0]||null;
+  const careerRoot=game.querySelector('#career');
+  const careerKids=careerRoot?[...careerRoot.children]:[];
+  const careerGrid=careerKids.find(el=>el.classList && el.classList.contains('grid2'));
+  const seasonCard=careerGrid && careerGrid.children[0];
+  const friendsCard=careerGrid && careerGrid.children[1];
+  const standings=careerKids.find(el=>el.querySelector && el.querySelector('#careerStandings'));
+  const schedule=careerKids.find(el=>el.querySelector && el.querySelector('#careerSchedule'));
+  const otherLeagues=careerKids.find(el=>el.querySelector && el.querySelector('#otherLeaguesStatus'));
+  const ucl=careerKids.find(el=>el.id==='uclCard');
+  const careerIntro=careerKids.slice(0,3);
+
+  const hub=document.createElement('div');
+  hub.className='game-hub';
+  hub.innerHTML='<div class="game-hub-hero"><div><div class="eyebrow">Ton espace club · football+</div><h1>Équipe & carrière</h1><p>Tout ton club au même endroit. Choisis une rubrique, sans faire défiler une page interminable.</p></div><div class="game-hub-mark">＋</div></div><div class="game-tabs" role="tablist" aria-label="Rubriques du club"><button class="game-tab active" type="button" data-game-tab="club">🏠 Mon club</button><button class="game-tab" type="button" data-game-tab="market">🔄 Mercato</button><button class="game-tab" type="button" data-game-tab="career">⚽ Ma carrière</button><button class="game-tab" type="button" data-game-tab="league">📊 Classements</button><button class="game-tab" type="button" data-game-tab="ucl">🏆 Ligue des champions</button></div>';
+  game.insertBefore(hub,game.firstChild);
+
+  const panels={};
+  [['club','Mon club'],['market','Mercato'],['career','Ma carrière'],['league','Classements'],['ucl','Ligue des champions']].forEach(([id,label])=>{
+    const panel=document.createElement('section');
+    panel.className='game-panel'+(id==='club'?' active':'');
+    panel.dataset.gamePanel=id;
+    panel.setAttribute('aria-label',label);
+    panels[id]=panel;
+    game.appendChild(panel);
+  });
+
+  function title(panel,eyebrow,heading,description){
+    const el=document.createElement('div');
+    el.className='game-panel-title';
+    el.innerHTML='<div><div class="eyebrow">'+eyebrow+'</div><h2>'+heading+'</h2>'+(description?'<p class="muted small">'+description+'</p>':'')+'</div>';
+    panel.appendChild(el);
+  }
+
+  if(clubCreator) panels.club.appendChild(clubCreator);
+  if(teamCard){title(panels.club,'Effectif','Mon équipe à 7','Ta composition, ta note générale et tes entraînements.');panels.club.appendChild(teamCard);}
+  if(marketCard){title(panels.market,'Recrutement','Construis ton équipe','Recherche et recrute tes sept joueurs.');panels.market.appendChild(marketCard);}
+  if(realismNotice) panels.market.appendChild(realismNotice);
+
+  careerIntro.forEach(el=>{if(el && el.parentNode===careerRoot) el.remove();});
+  if(seasonCard){title(panels.career,'Saison en cours','Ma carrière','Joue ton championnat et suis ta progression.');panels.career.appendChild(seasonCard);}
+  if(friendsCard) panels.career.appendChild(friendsCard);
+
+  if(standings){title(panels.league,'Résultats','Classements & calendrier','Retrouve les résultats de ta ligue et des autres championnats.');panels.league.appendChild(standings);}
+  if(schedule) panels.league.appendChild(schedule);
+  if(otherLeagues) panels.league.appendChild(otherLeagues);
+
+  if(ucl){title(panels.ucl,'Compétition européenne','Ligue des champions','Les quatre premiers de chaque championnat se qualifient.');panels.ucl.appendChild(ucl);}
+
+  if(careerRoot) careerRoot.remove();
+  if(mainGrid) mainGrid.remove();
+
+  // Entraînement repliable pour garder la composition visible immédiatement.
+  const training=document.getElementById('trainingPanel');
+  if(training && training.parentNode && training.tagName!=='DETAILS'){
+    const details=document.createElement('details');
+    details.className='card training-details';
+    const summary=document.createElement('summary');
+    summary.textContent='Centre d’entraînement · ouvrir';
+    training.parentNode.insertBefore(details,training);
+    details.appendChild(summary);
+    details.appendChild(training);
+  }
+
+  hub.querySelectorAll('[data-game-tab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.gameTab;
+      hub.querySelectorAll('[data-game-tab]').forEach(b=>{
+        const active=b===btn;
+        b.classList.toggle('active',active);
+        b.setAttribute('aria-selected',active?'true':'false');
+      });
+      Object.entries(panels).forEach(([key,panel])=>panel.classList.toggle('active',key===id));
+      const top=hub.getBoundingClientRect().top+window.scrollY-78;
+      window.scrollTo({top,behavior:'smooth'});
+    });
+  });
+
+  // Le bouton de navigation général ouvre directement l'espace club.
+  document.querySelectorAll('[data-goto="game"]').forEach(btn=>btn.addEventListener('click',()=>{
+    hub.querySelector('[data-game-tab="club"]').click();
+  }));
+})();
+</script>
+
+</body></html>
